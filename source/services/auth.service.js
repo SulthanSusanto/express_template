@@ -19,12 +19,8 @@ const tokenAccess = makeTokenDb();
  * @param {string} password - The password.
  * @returns {Promise<User>} - A promise that resolves with the logged-in user.
  */
-const loginUserWithUsernameAndPassword = async ({
-  dbAccess,
-  username,
-  password,
-}) => {
-  const userFound = await dbAccess.findByUsername(username);
+const loginUserWithUsernameAndPassword = async ({ username, password }) => {
+  const userFound = await userAccess.findByUsername(username);
 
   if (!userFound.isActive) {
     throw new ServerError('employee has been blocked', 400);

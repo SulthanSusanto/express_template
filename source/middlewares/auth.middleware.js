@@ -1,5 +1,5 @@
 import { decodedToken } from '../utils/jwt.js';
-import { ACCESS_TOKEN_SECRET } from '../config/env.config.js';
+import { JWT_ACCESS_TOKEN_SECRET } from '../config/env.config.js';
 
 import makeUserDb from '../database/repository/user.repository.js';
 
@@ -13,7 +13,10 @@ const protect = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) throw new CustomError('Unauthorized, token failed', 401);
 
-    const decoded = decodedToken({ token, secret: ACCESS_TOKEN_SECRET });
+    const decoded = decodedToken({
+      token,
+      secret: JWT_ACCESS_TOKEN_SECRET,
+    });
     if (!decoded || decoded.type !== 'access')
       throw new CustomError('Unauthorized, token failed', 401);
 

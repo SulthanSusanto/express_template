@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { UserError } from './CustomError.js';
+import CustomError from './CustomError.js';
 
 /**
  * Generates a hash for a given password using bcrypt.
@@ -17,7 +17,7 @@ const generatePasswordHash = (password, hash = 10) => {
  * @param {string} password - The password to be compared.
  * @param {string} hashPassword - The hash to compare the password against.
  * @returns {Promise<boolean>} - A promise that resolves to true if the password matches the hash.
- * @throws {UserError} - If the password and hash do not match.
+ * @throws {CustomError} - If the password and hash do not match.
  */
 const comparePasswordToHash = async (password, hashPassword) => {
   // Compare the given password with the hash using bcrypt's compare function.
@@ -25,7 +25,7 @@ const comparePasswordToHash = async (password, hashPassword) => {
 
   // If the password and hash do not match, throw a UserError with a status code of 400.
   if (!isMatch) {
-    throw new UserError('Password does not match', 400);
+    throw new CustomError('Password does not match', 400);
   }
 
   return isMatch; // Return true if the password and hash match.

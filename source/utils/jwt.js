@@ -19,18 +19,15 @@ const decodedToken = ({ token, secret }) => {
  *
  * @param {Object} options - An object containing token generation options.
  * @param {Object} options.payload - The payload to be included in the JWT token.
- * @param {string} options.type - The type of the token (e.g., 'access', 'refresh').
  * @param {string} [options.secret=ACCESS_TOKEN_SECRET] - The secret key used to sign the token.
  * @param {string} [options.expiresIn='10d'] - The expiration time for the token.
  * @returns {string} - The generated JWT token.
  */
 const generateToken = ({
   payload,
-  type,
   secret = ACCESS_TOKEN_SECRET,
   expiresIn = '10d',
 }) => {
-  payload.type = type;
   return jwt.sign(payload, secret, { expiresIn });
 };
 

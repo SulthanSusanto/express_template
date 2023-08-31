@@ -1,17 +1,32 @@
-import bcrypt from '../utils/bcrypt.js';
 import validateObjectProperties from '../services/validator.service.js';
 import typeConfigs from '../config/types.config.js';
+import makeUserDb from '../database/repository/user.repository.js';
 
-const loginValidator = ({ username, password }) => {
+import bcrypt from '../utils/bcrypt.js';
+import CustomError from '../utils/CustomError.js';
+import { comparePasswordToHash } from '../utils/bcrypt.js';
+
+const userAccess = makeUserDb();
+
+const loginValidator = async ({ username, password }) => {
   validateObjectProperties({ username, password }, typeConfigs.required);
 
   validateObjectProperties({ username, password }, typeConfigs.string);
 
   validateObjectProperties({ password }, typeConfigs.passwordPattern);
 
+  const userFound = await userAccess.findByUsername(username);
+
+  await comparePasswordToHash(password, userFound.password);
+
+  userFound.password = undefined;
+
+  if (!userFound.isActive) {
+    throw new CustomError('user has been blocked', 401);
+  }
+
   return {
-    getUsername: () => username,
-    getPassword: () => password,
+    getUser: () => userFound,
   };
 };
 

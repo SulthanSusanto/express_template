@@ -2,14 +2,14 @@ import moment from 'moment';
 import jwt from '../utils/jwt.js';
 
 import {
-  ACCESS_TOKEN_SECRET,
   JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
+  JWT_ACCESS_TOKEN_SECRET,
   JWT_ACCESS_EXPIRATION_MINUTES,
   JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
   JWT_REFRESH_EXPIRATION_DAYS,
-  REFRESH_TOKEN_SECRET,
-  RESET_TOKEN_SECRET,
-  VERIFY_EMAIL_TOKEN_SECRET,
+  JWT_REFRESH_TOKEN_SECRET,
+  JWT_RESET_TOKEN_SECRET,
+  JWT_VERIFY_EMAIL_TOKEN_SECRET,
 } from '../config/env.config.js';
 import {
   RESET_PASSWORD,
@@ -29,16 +29,17 @@ const userAccess = makeUserDb();
  * @param {string} userId - The user ID associated with the token.
  * @param {Moment} expires - The expiration time of the token.
  * @param {string} type - The type of the token.
- * @param {string} secret - The secret used to sign the token. Defaults to ACCESS_TOKEN_SECRET.
+ * @param {string} secret - The secret used to sign the token. Defaults to JWT_ACCESS_TOKEN_SECRET.
  * @returns {string} - The generated token.
  */
 
-const generateToken = (userId, expires, type, secret) => {
+const generateToken = (userId, expires, type, secret, expiresIn) => {
   const payload = {
     sub: userId,
     exp: expires.unix(),
+    type,
   };
-  return jwt.generateToken({ payload, type, secret });
+  return jwt.generateToken({ payload, secret, expiresIn });
 };
 
 /**
@@ -54,13 +55,13 @@ const generateToken = (userId, expires, type, secret) => {
 /**
  * Verify token and return token doc (or throw an error if it is not valid)
  * @param {string} token
- * @param {string} type
  * @returns {Promise<Token>}
+ * @param {string} type
  */
-const verifyToken = async (token, type) => {
+const verifyToken = async (token, type, secret) => {
   const payload = await jwt.decodedToken({
     token,
-    secret: RESET_TOKEN_SECRET,
+    secret,
   });
 
   const tokenDoc = await tokenAccess.findOneByOptional({
@@ -84,21 +85,23 @@ const generateAuthTokens = async (user) => {
     JWT_ACCESS_EXPIRATION_MINUTES,
     'minutes',
   );
-
+  const accessExpiresIn = `${JWT_ACCESS_EXPIRATION_MINUTES}m`;
   const accessToken = generateToken(
     user._id,
     accessTokenExpires,
     ACCESS,
-    ACCESS_TOKEN_SECRET,
+    JWT_ACCESS_TOKEN_SECRET,
+    accessExpiresIn,
   );
 
   const refreshTokenExpires = moment().add(JWT_REFRESH_EXPIRATION_DAYS, 'days');
-
+  const refreshExpiresIn = `${JWT_REFRESH_EXPIRATION_DAYS}d`;
   const refreshToken = generateToken(
     user.id,
     refreshTokenExpires,
     REFRESH,
-    REFRESH_TOKEN_SECRET,
+    JWT_REFRESH_TOKEN_SECRET,
+    refreshExpiresIn,
   );
 
   await tokenAccess.insert({
@@ -132,17 +135,18 @@ const generateResetPasswordToken = async (email) => {
     JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     'minutes',
   );
-
+  const expiresIn = `${JWT_RESET_PASSWORD_EXPIRATION_MINUTES}m`;
   const resetPasswordToken = generateToken(
     user._id,
     expires,
     RESET_PASSWORD,
-    RESET_TOKEN_SECRET,
+    JWT_RESET_TOKEN_SECRET,
+    expiresIn,
   );
 
   await tokenAccess.insert({
     token: resetPasswordToken,
-    user: user._id,
+    userId: user._id,
     expires,
     type: RESET_PASSWORD,
   });
@@ -157,11 +161,13 @@ const generateResetPasswordToken = async (email) => {
  */
 const generateVerifyEmailToken = async (user) => {
   const expires = moment().add(JWT_VERIFY_EMAIL_EXPIRATION_MINUTES, 'minutes');
+  const expiresIn = `${JWT_VERIFY_EMAIL_EXPIRATION_MINUTES}m`;
   const verifyEmailToken = generateToken(
     user._id,
     expires,
     VERIFY_EMAIL,
-    VERIFY_EMAIL_TOKEN_SECRET,
+    JWT_VERIFY_EMAIL_TOKEN_SECRET,
+    expiresIn,
   );
 
   await tokenAccess.insert({

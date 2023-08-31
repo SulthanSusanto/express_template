@@ -23,14 +23,10 @@ const validator = authValidator;
 const login = async (req) => {
   const { body } = req;
 
-  const validatedData = validator.loginValidator(body);
+  const validatedDocData = await validator.loginValidator(body);
 
-  const data = {
-    username: validatedData.getUsername(),
-    password: validatedData.getPassword(),
-  };
+  const user = validatedDocData.getUser();
 
-  const user = await authService.loginUserWithUsernameAndPassword(data);
   const tokens = await tokenService.generateAuthTokens(user);
 
   return successResponse({ ...tokens });

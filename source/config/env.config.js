@@ -18,8 +18,12 @@ export const EMAIL_FROM = process.env.EMAIL_FROM || '';
 export const DATABASE_URL_GLOBAL = process.env.DATABASE_URL_GLOBAL || '';
 export const DATABASE_URL_LOCAL = process.env.DATABASE_URL_LOCAL || '';
 
-export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || '';
-export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || '';
+export const JWT_ACCESS_TOKEN_SECRET =
+  process.env.JWT_ACCESS_TOKEN_SECRET || '';
+export const JWT_RESET_TOKEN_SECRET = process.env.JWT_RESET_TOKEN_SECRET || '';
+export const JWT_VERIFY_EMAIL_TOKEN_SECRET =
+  process.env.JWT_VERIFY_EMAIL_TOKEN_SECRET || '';
+
 export const JWT_ACCESS_EXPIRATION_MINUTES =
   process.env.JWT_ACCESS_EXPIRATION_MINUTES || 30;
 export const JWT_REFRESH_EXPIRATION_DAYS =
