@@ -1,0 +1,11 @@
+{
+  "collectCoverageFrom": ["source/test"],
+  "transform": {
+    "^.+\\.[t|j]sx?$": "babel-jest"
+  },
+  "timers": "fake",
+  "fakeTimers": {
+    "doNotFake": ["nextTick"],
+    "timerLimit": 1000
+  }
+}
